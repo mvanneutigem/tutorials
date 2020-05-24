@@ -1,10 +1,21 @@
-"""Simple demo maya plugin node.
+"""deformerTemplate.py.
 
-Use the plugin manager to load this plugin.
-Use this python command to load the plugin into your scene:
+Copyright (C) 2020  Marieke van Neutigem
 
+This code was written for educational purposes, it was written with the intent 
+of learning and educating about writing plugins for maya. 
+
+To test this plugin in maya:
+1. load the plugin using the plug-in manager.
+3. Run this snippet in a python script editor tab:
+
+------------------------------------snippet-------------------------------------
 from maya import cmds
 cmds.createNode('demoNode')
+----------------------------------end snippet-----------------------------------
+
+Contact: mvn882@hotmail.com
+https://mariekevanneutigem.nl/blog
 """
 
 from maya import cmds
@@ -102,7 +113,7 @@ def initializePlugin(plugin):
     Args:
         plugin (MObject): The plugin.
     """
-    plugin_fn = OpenMaya.MFnPlugin(plugin)
+    plugin_fn = OpenMaya.MFnPlugin(plugin, "Marieke van Neutigem", "0.0.1")
 
     try:
         plugin_fn.registerNode(
