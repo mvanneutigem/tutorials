@@ -64,15 +64,15 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
         
         # Collider mesh as an input, this needs to be connected to the worldMesh 
         # output attribute on a given shape.
-        cls.collider = generic_attr_fn.create(
+        cls.collider_attr = generic_attr_fn.create(
             'collider', 
             'cl', 
         )
         generic_attr_fn.addDataAccept( OpenMaya.MFnData.kMesh )
-        cls.addAttribute( cls.collider )
+        cls.addAttribute( cls.collider_attr )
 
         # Multiplier for the amount of bulge to apply.
-        cls.bulge_attr = numeric_attr_fn.create(
+        cls.bulge_multiplier_attr = numeric_attr_fn.create(
             'bulgeMultiplier',
             'bm',
             OpenMaya.MFnNumericData.kFloat
@@ -80,7 +80,7 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
         numeric_attr_fn.readable = False
         numeric_attr_fn.writable = True
         numeric_attr_fn.keyable = True
-        cls.addAttribute(cls.bulge_attr)
+        cls.addAttribute(cls.bulge_multiplier_attr)
 
         # Levels of vertices to apply the bulge to.
         cls.levels_attr = numeric_attr_fn.create(
@@ -103,8 +103,8 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
         # All inputs affect the output geometry.
         cls.attributeAffects( cls.bulgeshape_attr, kOutputGeom )
         cls.attributeAffects( cls.levels_attr, kOutputGeom )
-        cls.attributeAffects( cls.bulge_attr, kOutputGeom )
-        cls.attributeAffects( cls.collider, kOutputGeom )
+        cls.attributeAffects( cls.bulge_multiplier_attr, kOutputGeom )
+        cls.attributeAffects( cls.collider_attr, kOutputGeom )
 
     @classmethod
     def creator(cls):
@@ -172,7 +172,7 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
         )
 
         # Get the collider mesh, abort if none is found.
-        collider_handle = data_block.inputValue( self.collider )
+        collider_handle = data_block.inputValue( self.collider_attr )
         try:
             collider_object = collider_handle.asMesh()
             collider_fn = OpenMaya.MFnMesh(collider_object)
@@ -254,7 +254,7 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
             mesh_vertex_iterator.next()
 
         # get the bulge and levels values.
-        bulge = data_block.inputValue(self.bulge_attr).asFloat()
+        bulge = data_block.inputValue(self.bulge_multiplier_attr).asFloat()
         levels = data_block.inputValue(self.levels_attr).asInt()
         if inside_mesh:
             mesh_fn.setPoints(orig_points)
@@ -426,15 +426,15 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
 
 
     def getIntersection(self, point, normal, mesh):
-        """Check if given point is inside given mesh.
+        """Get the "best" intersection to move point to on given mesh.
         
         Args:
             point (MFloatPoint): point to check if inside mesh.
-            normal (MFloatVector): normal of given point.
+            normal (MFloatVector): inverted normal of given point.
             mesh (MFnMesh): mesh to check if point inside.
 
         Returns:
-            MPoint, MNormal
+            MPoint
         """
         intersection_normal = OpenMaya.MVector()
         closest_point = OpenMaya.MPoint()
