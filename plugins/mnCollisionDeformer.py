@@ -51,7 +51,7 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
     type_name = "mnCollisionDeformer"
 
     collider_attr = None
-    bulge_attr = None
+    bulge_multiplier_attr = None
     levels_attr = None
     bulgeshape_attr = None
 
@@ -134,7 +134,7 @@ class mnCollisionDeformer(OpenMayaMPx.MPxDeformerNode):
         positions.append(float(1.0))
         
         values.append(float(0.0))
-        values.append(float(0.0))
+        values.append(float(1.0))
         
         interps.append(OpenMaya.MRampAttribute.kSpline)
         interps.append(OpenMaya.MRampAttribute.kSpline)
